@@ -1,33 +1,31 @@
 #include <stdio.h>
 
-#define infinity 999
+#define INFINITY 999
 
 int prime(int cost[10][10], int source, int n) {
-    int i, j, sum = 0, visited[10], cmp[10], vertex[10];
-    int min, u, v;
+    int visited[10] = {0}, cmp[10], vertex[10], sum = 0;
 
-    // Initialize arrays
-    for (i = 1; i <= n; i++) {
-        vertex[i] = source;
-        visited[i] = 0;
+    for (int i = 1; i <= n; i++) {
         cmp[i] = cost[source][i];
+        vertex[i] = source;
     }
     visited[source] = 1;
 
-    // Main loop for Prim's algorithm
-    for (i = 1; i <= n - 1; i++) {
-        min = infinity;
-        for (j = 1; j <= n; j++) {
+    for (int i = 1; i < n; i++) {
+        int min = INFINITY, u = -1;
+        for (int j = 1; j <= n; j++) {
             if (!visited[j] && cmp[j] < min) {
                 min = cmp[j];
                 u = j;
             }
         }
+        if (u == -1) break; // Exit if no connected vertex is found
+
         visited[u] = 1;
-        sum = sum + cmp[u];
+        sum += cmp[u];
         printf("\n %d -> %d sum = %d", vertex[u], u, cmp[u]);
 
-        for (v = 1; v <= n; v++) {
+        for (int v = 1; v <= n; v++) {
             if (!visited[v] && cost[u][v] < cmp[v]) {
                 cmp[v] = cost[u][v];
                 vertex[v] = u;
@@ -37,25 +35,19 @@ int prime(int cost[10][10], int source, int n) {
     return sum;
 }
 
-void main() {
-    int a[10][10], n, i, j, m, source;
+int main() {
+    int a[10][10], n, source;
 
     printf("\nEnter the number of vertices: ");
     scanf("%d", &n);
 
     printf("\nEnter the cost matrix (0 for self-loop and 999 for no edge):\n");
-    for (i = 1; i <= n; i++) {
-        for (j = 1; j <= n; j++) {
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
             scanf("%d", &a[i][j]);
-        }
-    }
-
-    // Check for symmetry and zero diagonal elements
-    for (i = 1; i <= n; i++) {
-        for (j = 1; j <= n; j++) {
-            if (a[i][j] != a[j][i] || (a[i][i] != 0)) {
+            if ((i == j && a[i][j] != 0) || (i != j && a[i][j] != a[j][i])) {
                 printf("\nInvalid entry\nCost matrix should be symmetrical & diagonal elements should be zero.");
-                return;
+                return 1;
             }
         }
     }
@@ -63,7 +55,8 @@ void main() {
     printf("\nEnter the source vertex: ");
     scanf("%d", &source);
 
-    m = prime(a, source, n);
+    int totalCost = prime(a, source, n);
+    printf("\n\nTotal cost = %d", totalCost);
 
-    printf("\n\nTotal cost = %d", m);
+    return 0;
 }
